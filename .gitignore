@@ -3,3 +3,5 @@ resume.pdf
 venv
 .idea
 .DS_Store
+__pycache__
+__pycache__/resume_parser.cpython-38.pyc
