@@ -1,27 +1,26 @@
 from pyresparser import ResumeParser
+from flask import Flask, request
+from flask_cors import CORS, cross_origin
+from werkzeug.utils import secure_filename
 
-data = ResumeParser('/Users/lizapressman/Documents/ResumeToWebsite/resume.pdf').get_extracted_data()
+app = Flask(__name__)
+CORS(app)
 
-print(data)
+@app.route('/upload', methods=['POST', 'OPTIONS'])
+@cross_origin()
+def parse():
+    f = request.files['file']
+    filename = secure_filename(f.filename)
+    f.save(filename)
+    data = ResumeParser(filename).get_extracted_data()
+    return data
 
-for key in data:
-    print(key)
-    print(data.get(key))
 
-# ask user to verify and change information on front end side
-# update/fix data on submit from user
-
-website = open('website.html', 'w')
-
-message = f"""
-<html>
-    <head></head>
-    <body>
-        <h1>Name: {data.get("name")}</h1>
-        <p>Email: {data.get("email")}</p>
-    </body>
-</html>
-"""
-
-website.write(message)
-website.close()
+@app.route('/create', methods=['POST'])
+def create():
+    content = request.json
+    message = """<html>\n<head></head>\n<body>\n"""
+    for key in content:
+        message += f"""<p>{key}: {content.get(key)}</p>\n"""
+    message += """</body>\n</html>"""
+    return message
